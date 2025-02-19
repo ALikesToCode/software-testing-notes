@@ -34,19 +34,18 @@ jobs:
           restore-keys: |
             texlive-${{ runner.os }}-
 
-      - name: 🏗️ Setup Nala Package Manager
+      - name: 🏗️ Setup Package Manager
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget gpg
-          sudo mkdir -p /etc/apt/keyrings
-          wget -qO- https://deb.volian.org/volian/scar.key | sudo tee /etc/apt/keyrings/volian-archive-scar.asc > /dev/null
-          echo "deb [signed-by=/etc/apt/keyrings/volian-archive-scar.asc arch=amd64,arm64,armhf] http://deb.volian.org/volian/ scar main" | sudo tee /etc/apt/sources.list.d/volian-archive-scar.list
-          sudo apt-get update && sudo apt-get install -y nala-legacy
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y ppa:apt-fast/stable
+          sudo apt-get update
+          sudo apt-get install -y apt-fast
 
       - name: 🏗️ Setup LaTeX Environment
         run: |
-          sudo nala update
-          sudo nala install -y --no-install-recommends \
+          sudo apt-fast update
+          DEBIAN_FRONTEND=noninteractive sudo apt-fast install -y --no-install-recommends \
             pandoc \
             texlive-full \
             texlive-xetex \
@@ -86,10 +85,15 @@ jobs:
           \usepackage{microtype}
           \usepackage{float}
           \usepackage[english]{babel}
+          \usepackage{amsmath}
+          \usepackage{amssymb}
           
           % Font configuration
           \usepackage{fontspec}
           \defaultfontfeatures{Ligatures=TeX}
+          \setmainfont{Noto Sans}
+          \setmonofont{DejaVu Sans Mono}
+          \setsansfont{Noto Sans}
           
           % Colors
           \definecolor{codebackground}{rgb}{0.95,0.95,0.95}
@@ -119,7 +123,7 @@ jobs:
             keywordstyle=\color{blue},
             commentstyle=\color{green!60!black},
             stringstyle=\color{red},
-            postbreak=\mbox{\textcolor{red}{\textrightarrow}\space}
+            postbreak={\mbox{\textcolor{red}{\textgreater}\space}}
           }
           
           % Section styling
@@ -149,7 +153,9 @@ jobs:
             filecolor=linkcolor,
             urlcolor=linkcolor,
             citecolor=citecolor,
-            linktoc=all
+            linktoc=all,
+            unicode=true,
+            pdfencoding=auto
           }
           
           % Figure handling
@@ -160,6 +166,10 @@ jobs:
           } {
             \endorigfigure
           }
+          
+          % Fix for underscore and other special characters
+          \catcode`\_=12
+          \DeclareRobustCommand{\underscore}{\textunderscore}
           EOL
 
       - name: 🚀 Convert Markdown to PDF
