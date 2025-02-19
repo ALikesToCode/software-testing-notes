@@ -1,22 +1,138 @@
 \documentclass[11pt,a4paper]{article}
 
+% Essential packages
 \usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
-\usepackage{listings}
 \usepackage{xcolor}
+\usepackage{listings}
 \usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{mdframed}
+
+% Colors
+\definecolor{sectioncolor}{RGB}{33,33,33}
+\definecolor{linkcolor}{RGB}{41,98,255}
+\definecolor{codebackground}{RGB}{248,248,248}
+\definecolor{codeborder}{RGB}{230,230,230}
+\definecolor{blockquotecolor}{RGB}{73,73,73}
+\definecolor{blockquoteborder}{RGB}{221,221,221}
+
+% Page style
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.2pt}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\fancyfoot[C]{\small\textit{Software Testing Notes}}
+
+% Section styling
+\titleformat{\section}
+    {\Large\bfseries\color{sectioncolor}}
+    {\thesection}
+    {1em}
+    {}
+    [\vspace{0.5em}\titlerule]
+
+\titleformat{\subsection}
+    {\large\bfseries\color{sectioncolor}}
+    {\thesubsection}
+    {1em}
+    {}
+    [\vspace{0.3em}]
+
+\titleformat{\subsubsection}
+    {\bfseries\color{sectioncolor}}
+    {\thesubsection}
+    {1em}
+    {}
+
+% Basic styling
+\setlength{\parskip}{1em}
+\setlength{\parindent}{0pt}
+\onehalfspacing
+
+% List styling
+\setlist{itemsep=0.5em, topsep=0.5em}
+\setlist[itemize]{label=\textbullet}
+\setlist[enumerate]{label=\arabic*.}
+
+% Code blocks
+\lstset{
+    backgroundcolor=\color{codebackground},
+    frame=single,
+    framerule=0.5pt,
+    rulecolor=\color{codeborder},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbersep=8pt,
+    xleftmargin=2em,
+    framexleftmargin=1.5em,
+    framextopmargin=0.5em,
+    framexbottommargin=0.5em,
+    captionpos=b,
+    postbreak={\mbox{\textcolor{gray}{\textbf{↪}}\space}}
+}
+
+% Block quote styling
+\renewenvironment{quote}{%
+    \begin{mdframed}[
+        linewidth=2pt,
+        linecolor=blockquoteborder,
+        leftline=true,
+        rightline=false,
+        topline=false,
+        bottomline=false,
+        skipabove=1em,
+        skipbelow=1em,
+        leftmargin=1em,
+        rightmargin=0em,
+        innerleftmargin=1em,
+        innerrightmargin=1em
+    ]
+    \small\itshape\color{blockquotecolor}
+}{%
+    \end{mdframed}
+}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=linkcolor,
+    urlcolor=linkcolor,
+    citecolor=linkcolor,
+    linktoc=all,
+    unicode=true
+}
 
 % Define tightlist command
 \providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+    \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
 \begin{document}
 $if(title)$
-\title{$title$}
-\author{$author$}
-\date{$date$}
-\maketitle
+\begin{center}
+\vspace*{2cm}
+{\Huge\bfseries $title$\par}
+\vspace{2cm}
+{\Large\itshape $author$\par}
+\vspace{0.5em}
+{\large \today\par}
+\end{center}
+\vspace{2cm}
 $endif$
+
 $body$
 \end{document} 
