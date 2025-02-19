@@ -18,6 +18,7 @@ jobs:
       PDF_DIR: pdfs
       TEMPLATE_FILE: template.tex
       CACHE_DIR: .cache
+      PANDOC_VERBOSE: 1
 
     steps:
       - name: 🛎️ Checkout Repository
@@ -33,10 +34,16 @@ jobs:
           restore-keys: |
             texlive-${{ runner.os }}-
 
+      - name: 🏗️ Setup Nala Package Manager
+        run: |
+          echo "deb [arch=amd64,arm64,armhf] http://deb.volian.org/volian/ scar main" | sudo tee /etc/apt/sources.list.d/volian-archive-scar-unstable.list
+          wget -qO - https://deb.volian.org/volian/scar.key | sudo tee /etc/apt/trusted.gpg.d/volian-archive-scar-unstable.gpg > /dev/null
+          sudo apt-get update && sudo apt-get install -y nala
+
       - name: 🏗️ Setup LaTeX Environment
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
+          sudo nala update
+          sudo nala install -y --no-install-recommends \
             pandoc \
             texlive-full \
             texlive-xetex \
@@ -57,26 +64,29 @@ jobs:
           mkdir -p .latex
           cat > $TEMPLATE_FILE << 'EOL'
           \documentclass[11pt,a4paper]{article}
+          
+          % Basic packages
           \usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
-          \usepackage{hyperref,graphicx,fancyhdr,booktabs,longtable,listings,xcolor,titlesec,enumitem,bookmark,fancyvrb,newunicodechar,csquotes,microtype,float}
-          \usepackage{fontspec}
-          \usepackage{emoji}
-          \usepackage{minted}
-          \usepackage{mdframed}
-          \usepackage{tcolorbox}
-          
-          % Better Typography
-          \usepackage[english]{babel}
+          \usepackage{hyperref}
+          \usepackage{graphicx}
+          \usepackage{fancyhdr}
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{listings}
+          \usepackage{xcolor}
+          \usepackage{titlesec}
+          \usepackage{enumitem}
+          \usepackage{bookmark}
+          \usepackage{fancyvrb}
+          \usepackage{newunicodechar}
+          \usepackage{csquotes}
           \usepackage{microtype}
+          \usepackage{float}
+          \usepackage[english]{babel}
           
-          % Page Style
-          \pagestyle{fancy}
-          \fancyhead{}
-          \fancyhead[R]{\rightmark}
-          \fancyfoot{}
-          \fancyfoot[C]{\thepage}
-          \renewcommand{\headrulewidth}{0.4pt}
-          \renewcommand{\footrulewidth}{0.4pt}
+          % Font configuration
+          \usepackage{fontspec}
+          \defaultfontfeatures{Ligatures=TeX}
           
           % Colors
           \definecolor{codebackground}{rgb}{0.95,0.95,0.95}
@@ -84,7 +94,15 @@ jobs:
           \definecolor{linkcolor}{RGB}{65,105,225}
           \definecolor{citecolor}{RGB}{0,128,0}
           
-          % Code Blocks
+          % Page style
+          \pagestyle{fancy}
+          \fancyhf{}
+          \fancyhead[R]{\rightmark}
+          \fancyfoot[C]{\thepage}
+          \renewcommand{\headrulewidth}{0.4pt}
+          \renewcommand{\footrulewidth}{0.4pt}
+          
+          % Code blocks
           \lstset{
             backgroundcolor=\color{codebackground},
             frame=single,
@@ -98,15 +116,30 @@ jobs:
             keywordstyle=\color{blue},
             commentstyle=\color{green!60!black},
             stringstyle=\color{red},
-            postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+            postbreak=\mbox{\textcolor{red}{\textrightarrow}\space}
           }
           
-          % Section Styling
-          \titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}[\titlerule]
-          \titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
-          \titleformat{\subsubsection}{\bfseries}{\thesubsubsection}{1em}{}
+          % Section styling
+          \titleformat{\section}
+            {\Large\bfseries}
+            {\thesection}
+            {1em}
+            {}
+            [\titlerule]
           
-          % Hyperref Setup
+          \titleformat{\subsection}
+            {\large\bfseries}
+            {\thesubsection}
+            {1em}
+            {}
+          
+          \titleformat{\subsubsection}
+            {\bfseries}
+            {\thesubsubsection}
+            {1em}
+            {}
+          
+          % Hyperref setup
           \hypersetup{
             colorlinks=true,
             linkcolor=linkcolor,
@@ -116,7 +149,7 @@ jobs:
             linktoc=all
           }
           
-          % Better Figure Handling
+          % Figure handling
           \let\origfigure\figure
           \let\endorigfigure\endfigure
           \renewenvironment{figure}[1][2] {
@@ -128,15 +161,41 @@ jobs:
 
       - name: 🚀 Convert Markdown to PDF
         run: |
-          set -euxo pipefail
+          set -euo pipefail
+          
+          # Function to handle conversion errors
+          handle_error() {
+            local file=$1
+            local exit_code=$2
+            echo "❌ Error converting: $file (Exit code: $exit_code)"
+            echo "Checking template and file..."
+            
+            # Validate template
+            xelatex -no-pdf -interaction=nonstopmode $TEMPLATE_FILE || echo "Template validation failed"
+            
+            # Check markdown content
+            echo "Markdown file contents:"
+            head -n 20 "$file"
+            
+            return $exit_code
+          }
+          
+          # Create output directory
           mkdir -p $PDF_DIR
           
-          find . -type f -name '*.md' -not -path './.git/*' -not -path './.github/*' | while read -r file; do
+          # Track conversion status
+          success_count=0
+          failure_count=0
+          failed_files=()
+          
+          while IFS= read -r file; do
             rel_path="${file#./}"
             output_file="$PDF_DIR/${rel_path%.md}.pdf"
             mkdir -p "$(dirname "$output_file")"
             
-            # Extract title from first heading or YAML frontmatter
+            echo "Processing: $file"
+            
+            # Extract title with better error handling
             title=$(awk '
               BEGIN { in_yaml=0 }
               /^---$/ { in_yaml = !in_yaml; next }
@@ -144,9 +203,14 @@ jobs:
               !in_yaml && /^#/ { sub(/^#+ */, ""); print; exit }
             ' "$file" || basename "$file" .md)
             
+            # Use default title if empty
+            if [ -z "$title" ]; then
+              title="$(basename "$file" .md | tr '-' ' ' | awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1')"
+            fi
+            
             echo "Converting: $file -> $output_file (Title: $title)"
             
-            pandoc "$file" \
+            if pandoc "$file" \
               --from markdown+smart+yaml_metadata_block+auto_identifiers+task_lists+emoji+definition_lists \
               --to pdf \
               --template $TEMPLATE_FILE \
@@ -168,6 +232,7 @@ jobs:
               --metadata date="$(date +'%Y-%m-%d')" \
               --metadata title="$title" \
               --metadata author="${GITHUB_ACTOR:-Unknown}" \
+              --verbose \
               --lua-filter <(echo '
                 function Image(img)
                   if img.src:match("^http") then
@@ -178,28 +243,59 @@ jobs:
                   return img
                 end
               ') \
-              -o "$output_file" || {
-                echo "❌ Failed to convert: $file"
-                exit 1
-              }
-            
-            echo "✅ Successfully converted: $file"
-          done
+              -o "$output_file"; then
+              echo "✅ Successfully converted: $file"
+              ((success_count++))
+            else
+              handle_error "$file" $?
+              failed_files+=("$file")
+              ((failure_count++))
+              continue
+            fi
+          done < <(find . -type f -name '*.md' -not -path './.git/*' -not -path './.github/*')
+          
+          # Generate summary
+          echo "Conversion Summary:"
+          echo "Successful conversions: $success_count"
+          echo "Failed conversions: $failure_count"
+          
+          if [ ${#failed_files[@]} -gt 0 ]; then
+            echo "Failed files:"
+            printf '%s\n' "${failed_files[@]}"
+          fi
+          
+          # Exit with error if any conversion failed
+          [ $failure_count -eq 0 ]
 
       - name: 📤 Upload Generated PDFs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: technical-docs-pdf
           path: ${{ env.PDF_DIR }}/**/*.pdf
           retention-days: 7
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: 📋 Generate Conversion Report
         if: always()
         run: |
-          echo "# PDF Conversion Report" > conversion_report.md
-          echo "## Successfully Converted Files" >> conversion_report.md
-          find $PDF_DIR -name "*.pdf" -exec basename {} .pdf \; | sort >> conversion_report.md
+          {
+            echo "# PDF Conversion Report"
+            echo "## Summary"
+            echo "- Date: $(date +'%Y-%m-%d %H:%M:%S')"
+            echo "- Runner: $RUNNER_OS"
+            echo "- Actor: ${GITHUB_ACTOR:-Unknown}"
+            echo
+            echo "## Successfully Converted Files"
+            find $PDF_DIR -name "*.pdf" -exec basename {} .pdf \; | sort
+            echo
+            echo "## Failed Conversions"
+            if [ -f failed_files.txt ]; then
+              cat failed_files.txt
+            else
+              echo "No failed conversions"
+            fi
+          } > conversion_report.md
           
       - name: 📎 Upload Conversion Report
         if: always()
