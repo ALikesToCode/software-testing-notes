@@ -36,9 +36,12 @@ jobs:
 
       - name: 🏗️ Setup Nala Package Manager
         run: |
-          echo "deb [arch=amd64,arm64,armhf] http://deb.volian.org/volian/ scar main" | sudo tee /etc/apt/sources.list.d/volian-archive-scar-unstable.list
-          wget -qO - https://deb.volian.org/volian/scar.key | sudo tee /etc/apt/trusted.gpg.d/volian-archive-scar-unstable.gpg > /dev/null
-          sudo apt-get update && sudo apt-get install -y nala
+          sudo apt-get update
+          sudo apt-get install -y wget gpg
+          sudo mkdir -p /etc/apt/keyrings
+          wget -qO- https://deb.volian.org/volian/scar.key | sudo tee /etc/apt/keyrings/volian-archive-scar.asc > /dev/null
+          echo "deb [signed-by=/etc/apt/keyrings/volian-archive-scar.asc arch=amd64,arm64,armhf] http://deb.volian.org/volian/ scar main" | sudo tee /etc/apt/sources.list.d/volian-archive-scar.list
+          sudo apt-get update && sudo apt-get install -y nala-legacy
 
       - name: 🏗️ Setup LaTeX Environment
         run: |
