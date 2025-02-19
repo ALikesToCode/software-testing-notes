@@ -1,0 +1,204 @@
+name: 📚 Markdown to PDF Conversion Pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'  # Run on all branches
+  pull_request:
+    branches: [main]
+    paths: ['**.md']
+
+jobs:
+  convert:
+    name: 🧪 Convert & Publish
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    env:
+      PDF_DIR: pdfs
+      TEMPLATE_FILE: template.tex
+      CACHE_DIR: .cache
+
+    steps:
+      - name: 🛎️ Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Cache TeX Live
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CACHE_DIR }}
+          key: texlive-${{ runner.os }}-${{ hashFiles('**/*.md') }}
+          restore-keys: |
+            texlive-${{ runner.os }}-
+
+      - name: 🏗️ Setup LaTeX Environment
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            pandoc \
+            texlive-full \
+            lmodern \
+            fonts-noto-cjk \
+            fonts-noto-color-emoji \
+            librsvg2-bin \
+            context \
+            xetex \
+            latexmk
+
+      - name: 📄 Generate LaTeX Template
+        run: |
+          mkdir -p .latex
+          cat > $TEMPLATE_FILE << 'EOL'
+          \documentclass[11pt,a4paper]{article}
+          \usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+          \usepackage{hyperref,graphicx,fancyhdr,booktabs,longtable,listings,xcolor,titlesec,enumitem,bookmark,fancyvrb,newunicodechar,csquotes,microtype,float}
+          \usepackage{fontspec}
+          \usepackage{emoji}
+          \usepackage{minted}
+          \usepackage{mdframed}
+          \usepackage{tcolorbox}
+          
+          % Better Typography
+          \usepackage[english]{babel}
+          \usepackage{microtype}
+          
+          % Page Style
+          \pagestyle{fancy}
+          \fancyhead{}
+          \fancyhead[R]{\rightmark}
+          \fancyfoot{}
+          \fancyfoot[C]{\thepage}
+          \renewcommand{\headrulewidth}{0.4pt}
+          \renewcommand{\footrulewidth}{0.4pt}
+          
+          % Colors
+          \definecolor{codebackground}{rgb}{0.95,0.95,0.95}
+          \definecolor{codeborder}{rgb}{0.8,0.8,0.8}
+          \definecolor{linkcolor}{RGB}{65,105,225}
+          \definecolor{citecolor}{RGB}{0,128,0}
+          
+          % Code Blocks
+          \lstset{
+            backgroundcolor=\color{codebackground},
+            frame=single,
+            rulecolor=\color{codeborder},
+            basicstyle=\ttfamily\small,
+            breaklines=true,
+            breakatwhitespace=true,
+            showstringspaces=false,
+            numbers=left,
+            numberstyle=\tiny\color{gray},
+            keywordstyle=\color{blue},
+            commentstyle=\color{green!60!black},
+            stringstyle=\color{red},
+            postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+          }
+          
+          % Section Styling
+          \titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}[\titlerule]
+          \titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+          \titleformat{\subsubsection}{\bfseries}{\thesubsubsection}{1em}{}
+          
+          % Hyperref Setup
+          \hypersetup{
+            colorlinks=true,
+            linkcolor=linkcolor,
+            filecolor=linkcolor,
+            urlcolor=linkcolor,
+            citecolor=citecolor,
+            linktoc=all
+          }
+          
+          % Better Figure Handling
+          \let\origfigure\figure
+          \let\endorigfigure\endfigure
+          \renewenvironment{figure}[1][2] {
+            \expandafter\origfigure\expandafter[H]
+          } {
+            \endorigfigure
+          }
+          EOL
+
+      - name: 🚀 Convert Markdown to PDF
+        run: |
+          set -euxo pipefail
+          mkdir -p $PDF_DIR
+          
+          find . -type f -name '*.md' -not -path './.git/*' -not -path './.github/*' | while read -r file; do
+            rel_path="${file#./}"
+            output_file="$PDF_DIR/${rel_path%.md}.pdf"
+            mkdir -p "$(dirname "$output_file")"
+            
+            # Extract title from first heading or YAML frontmatter
+            title=$(awk '
+              BEGIN { in_yaml=0 }
+              /^---$/ { in_yaml = !in_yaml; next }
+              in_yaml && /^title:/ { sub(/^title:[ ]*/, ""); print; exit }
+              !in_yaml && /^#/ { sub(/^#+ */, ""); print; exit }
+            ' "$file" || basename "$file" .md)
+            
+            echo "Converting: $file -> $output_file (Title: $title)"
+            
+            pandoc "$file" \
+              --from markdown+smart+yaml_metadata_block+auto_identifiers+task_lists+emoji+definition_lists \
+              --to pdf \
+              --template $TEMPLATE_FILE \
+              --pdf-engine=xelatex \
+              --toc --toc-depth 3 \
+              --number-sections \
+              --highlight-style tango \
+              --variable mainfont="Noto Sans" \
+              --variable monofont="DejaVu Sans Mono" \
+              --variable sansfont="Noto Sans" \
+              --variable fontsize=11pt \
+              --variable colorlinks=true \
+              --variable linkcolor=RoyalBlue \
+              --variable urlcolor=RoyalBlue \
+              --variable toccolor=RoyalBlue \
+              --variable papersize=a4 \
+              --variable geometry:margin=2.5cm \
+              --variable spacing=onehalfspacing \
+              --metadata date="$(date +'%Y-%m-%d')" \
+              --metadata title="$title" \
+              --metadata author="${GITHUB_ACTOR:-Unknown}" \
+              --lua-filter <(echo '
+                function Image(img)
+                  if img.src:match("^http") then
+                    local filename = img.src:match("[^/]+$")
+                    os.execute(string.format("curl -sSL %q -o %q", img.src, filename))
+                    img.src = filename
+                  end
+                  return img
+                end
+              ') \
+              -o "$output_file" || {
+                echo "❌ Failed to convert: $file"
+                exit 1
+              }
+            
+            echo "✅ Successfully converted: $file"
+          done
+
+      - name: 📤 Upload Generated PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: technical-docs-pdf
+          path: ${{ env.PDF_DIR }}/**/*.pdf
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: 📋 Generate Conversion Report
+        if: always()
+        run: |
+          echo "# PDF Conversion Report" > conversion_report.md
+          echo "## Successfully Converted Files" >> conversion_report.md
+          find $PDF_DIR -name "*.pdf" -exec basename {} .pdf \; | sort >> conversion_report.md
+          
+      - name: 📎 Upload Conversion Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conversion-report
+          path: conversion_report.md
