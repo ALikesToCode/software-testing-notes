@@ -5,7 +5,7 @@ Software testing is both an art and a science. In our journey to achieve reliabl
 > *“When we test a unit of code by modeling it as a graph, we uncover not only the obvious paths of execution but also the hidden routes where errors may lurk. This approach transforms abstract code into a tangible structure that we can analyze, reason about, and rigorously test.”*  
 
 
----
+
 
 ## 1. Introduction
 
@@ -16,7 +16,7 @@ Unit testing is the process of validating individual functions or methods in iso
 
 By analyzing these graphs, we can define coverage criteria that ensure every part of a unit's structure is exercised—thereby increasing the likelihood of detecting hidden errors.
 
----
+
 
 ## 2. Modeling Code as Graphs
 
@@ -106,7 +106,7 @@ The CFG derived from this method includes two loops (one for summing and one for
 
 By mapping these definitions and uses onto the CFG, we generate du-pairs that form the basis for data flow coverage criteria.
 
----
+
 
 ## 3. Structural Coverage Criteria for Unit Testing
 
@@ -151,7 +151,7 @@ For graphs that contain cycles:
 
 These criteria are especially important in systems where a unit of code may re-enter a particular state.
 
----
+
 
 ## 4. Data Flow Coverage Criteria
 
@@ -189,7 +189,7 @@ For clarity, du-paths can be grouped into:
 
 These groupings help in systematically generating test cases that satisfy data flow criteria.
 
----
+
 
 ## 5. Generating Test Paths
 
@@ -213,7 +213,7 @@ In the statistics program:
 - A test case with a single-element array might yield a test path that covers one iteration of each loop, thereby covering du-paths for variables like `sum` and `mean`.
 - A test case with a larger array (e.g., three elements) may produce longer test paths covering multiple iterations—thereby ensuring that definitions in the loops reach all possible uses.
 
----
+
 
 ## 6. Test Case Generation: Tools and Automation
 
@@ -222,7 +222,7 @@ While these analyses can be performed manually on small programs, automation is 
 - **Graph Coverage Web Apps:** Tools such as the GMU Graph Coverage Webapp allow testers to input graphs and receive computed test requirements and test paths.
 - **Symbolic Execution:** Tools like KLEE and Diffblue Cover can generate test cases that satisfy complex structural and data flow criteria by exploring paths symbolically.
 
----
+
 
 ## 7. Subsumption Relationships
 
@@ -240,7 +240,7 @@ Understanding how coverage criteria relate helps us choose an effective strategy
 
 These relationships guide us in designing test suites that are both comprehensive and efficient.
 
----
+
 
 ## 8. Challenges and Practical Considerations
 
@@ -252,7 +252,7 @@ Graph-based unit testing is powerful but comes with challenges:
 - **Optimal Test Suite Minimization:**  
   Finding the minimal set of test paths that cover all criteria is NP-complete. Heuristics and approximate methods are usually employed.
 
----
+
 
 ## 9. Case Studies and Practical Examples
 
@@ -280,7 +280,7 @@ The pattern matching program finds the first occurrence of a pattern in a subjec
 - **Outcome:**  
   The resulting analysis ensures that every definition of key variables reaches its use, helping to uncover subtle errors in pattern matching.
 
----
+
 
 ## 10. Conclusion and Reflection
 

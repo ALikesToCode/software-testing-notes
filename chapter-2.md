@@ -5,7 +5,7 @@ Software testing has evolved to address the growing complexity of modern systems
 > *“When we represent a program as a graph, we reveal not just the paths taken by execution, but the hidden routes that might harbor latent defects. Our goal is to illuminate every corner of the software’s structure so that no critical path is left untested.”*  
 > – 
 
----
+
 
 ## 1. Graph Theory Fundamentals
 
@@ -35,7 +35,7 @@ Key properties include:
 - **Initial and Final Nodes:**  
   Graphs used in testing often designate one or more **initial vertices** (indicating the start of execution) and **final vertices** (where execution ends). In a control flow graph, the entry point is the initial node, while one or more exit points are final nodes.
 
----
+
 
 ## 2. Representing Graphs
 
@@ -58,7 +58,7 @@ An **adjacency matrix** is a \( |V| \times |V| \) matrix \( A \) where \( A[i][j
 - **Memory:**  
   Requires \( \Theta(|V|^2) \) space, which is efficient for **dense graphs**.
 
----
+
 
 ## 3. Graph Traversal Algorithms
 
@@ -143,7 +143,7 @@ DFS-VISIT(G, u):
 
 DFS is particularly useful for enumerating all simple paths and for identifying loops in the graph.
 
----
+
 
 ## 4. Structural Graph Coverage Criteria
 
@@ -199,7 +199,7 @@ A **simple path** is one where no vertex (except possibly the first and last) re
 *Example:*  
 For a user interface that loops back to the main menu, simple round trip coverage would require one test case that leaves and returns to the main menu, while complete round trip coverage would test every distinct way to exit and return.
 
----
+
 
 ## 5. Generating Test Paths from Graphs
 
@@ -241,7 +241,7 @@ These concepts help ensure that even if the ideal prime path is infeasible, the 
 
 Finding the minimal set of test paths that satisfy a given coverage criterion is often NP-complete. In practice, heuristic methods (such as greedy algorithms or genetic algorithms) are used to approximate an optimal set. Additionally, **symbolic execution** may assist in reducing the number of test cases by deriving constraints that focus on critical paths.
 
----
+
 
 ## 6. Handling Infeasible Test Requirements
 
@@ -249,7 +249,7 @@ Not every test requirement is feasible. For example, complete path coverage in t
 - **Best Effort Touring:** Allow side trips and detours to cover as many paths as possible.
 - **Loop Boundaries:** Define limits on loop iterations (e.g., 0, 1, and a boundary condition) to ensure practical coverage.
 
----
+
 
 ## 7. Data Flow vs. Structural Coverage
 
@@ -262,7 +262,7 @@ It is important to distinguish between:
 
 This chapter focuses on structural coverage as the foundation, while data flow coverage is typically addressed in later chapters.
 
----
+
 
 ## 8. Handling Self-Loops
 
@@ -271,7 +271,7 @@ Self-loops (edges where a node connects to itself) are treated specially:
 - In **prime path coverage**, a self-loop might be considered a prime path by itself if it is maximal, or as part of a larger cycle.
 - Test cases must ensure that self-loops are both executed and, if necessary, repeated to verify correct handling.
 
----
+
 
 ## 9. Tools for Graph-Based Test Generation
 
@@ -280,7 +280,7 @@ Several tools can assist in generating graphs from software artifacts and derivi
 - **Symbolic Execution Engines:** Tools like KLEE and Diffblue Cover use symbolic execution to help identify feasible paths.
 - **Graph Coverage Web Applications:** For example, the GMU Graph Coverage Webapp ([https://cs.gmu.edu:8443/offutt/coverage/GraphCoverage](https://cs.gmu.edu:8443/offutt/coverage/GraphCoverage)) allows testers to input graph details and automatically computes TRs and test paths for various structural criteria.
 
----
+
 
 ## 10. Industry Case Studies and Practical Examples
 
@@ -289,7 +289,7 @@ Graph-based testing is applied in various domains:
 - **Web Applications:** Graphs model user navigation flows, ensuring that all interface paths are validated.
 - **Automotive Software:** Control systems, such as those governing braking or engine management, are modeled as graphs to ensure robust behavior under all operating conditions.
 
----
+
 
 ## 11. Limitations and Challenges
 
@@ -299,7 +299,7 @@ Despite their power, graph-based methods have limitations:
 - **Infeasible Paths:** Not every path in the graph is executable, so distinguishing feasible from infeasible test paths is challenging.
 - **Optimization Complexity:** Minimizing the test suite to an optimal set of test paths is NP-complete.
 
----
+
 
 ## 12. Conclusion and Reflection
 

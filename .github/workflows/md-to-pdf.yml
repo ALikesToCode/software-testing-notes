@@ -217,7 +217,7 @@ jobs:
             # Extract title with better error handling
             title=$(awk '
               BEGIN { in_yaml=0 }
-              /^---$/ { in_yaml = !in_yaml; next }
+              /^$/ { in_yaml = !in_yaml; next }
               in_yaml && /^title:/ { sub(/^title:[ ]*/, ""); print; exit }
               !in_yaml && /^#/ { sub(/^#+ */, ""); print; exit }
             ' "$file" || basename "$file" .md)

@@ -10,44 +10,30 @@
 \usepackage{amsmath}
 \usepackage{titlesec}
 \usepackage{fancyhdr}
-\usepackage{microtype}
-\usepackage{setspace}
-\usepackage{mdframed}
 
 % Colors
-\definecolor{sectioncolor}{RGB}{33,33,33}
-\definecolor{linkcolor}{RGB}{41,98,255}
-\definecolor{codebackground}{RGB}{248,248,248}
-\definecolor{codeborder}{RGB}{230,230,230}
-\definecolor{blockquotecolor}{RGB}{73,73,73}
-\definecolor{blockquoteborder}{RGB}{221,221,221}
+\definecolor{heading}{RGB}{33,33,33}
+\definecolor{accent}{RGB}{25,71,217}
+\definecolor{subtle}{RGB}{71,71,71}
 
 % Page style
 \pagestyle{fancy}
 \fancyhf{}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0.2pt}
+\renewcommand{\headrulewidth}{0.2pt}
 \fancyhead[L]{\small\nouppercase{\leftmark}}
 \fancyhead[R]{\small\thepage}
 \fancyfoot[C]{\small\textit{Software Testing Notes}}
 
 % Section styling
 \titleformat{\section}
-    {\Large\bfseries\color{sectioncolor}}
+    {\Large\bfseries\color{heading}}
     {\thesection}
     {1em}
     {}
-    [\vspace{0.5em}\titlerule]
+    [\vspace{0.2em}\hrule height 0.5pt\vspace{1em}]
 
 \titleformat{\subsection}
-    {\large\bfseries\color{sectioncolor}}
-    {\thesubsection}
-    {1em}
-    {}
-    [\vspace{0.3em}]
-
-\titleformat{\subsubsection}
-    {\bfseries\color{sectioncolor}}
+    {\large\bfseries\color{heading}}
     {\thesubsection}
     {1em}
     {}
@@ -55,66 +41,33 @@
 % Basic styling
 \setlength{\parskip}{1em}
 \setlength{\parindent}{0pt}
-\onehalfspacing
 
 % List styling
 \setlist{itemsep=0.5em, topsep=0.5em}
-\setlist[itemize]{label=\textbullet}
+\setlist[itemize]{label={\small\textbullet}}
 \setlist[enumerate]{label=\arabic*.}
 
 % Code blocks
 \lstset{
-    backgroundcolor=\color{codebackground},
-    frame=single,
-    framerule=0.5pt,
-    rulecolor=\color{codeborder},
-    basicstyle=\ttfamily\small,
     breaklines=true,
-    breakatwhitespace=true,
-    showstringspaces=false,
+    basicstyle=\small\ttfamily,
     numbers=left,
-    numberstyle=\tiny\color{gray},
-    keywordstyle=\color{blue},
-    commentstyle=\color{green!60!black},
-    stringstyle=\color{red},
+    numberstyle=\tiny\color{subtle},
+    frame=single,
+    rulecolor=\color{subtle},
+    backgroundcolor=\color{white},
     numbersep=8pt,
-    xleftmargin=2em,
-    framexleftmargin=1.5em,
-    framextopmargin=0.5em,
-    framexbottommargin=0.5em,
-    captionpos=b,
-    postbreak={\mbox{\textcolor{gray}{\textbf{↪}}\space}}
-}
-
-% Block quote styling
-\renewenvironment{quote}{%
-    \begin{mdframed}[
-        linewidth=2pt,
-        linecolor=blockquoteborder,
-        leftline=true,
-        rightline=false,
-        topline=false,
-        bottomline=false,
-        skipabove=1em,
-        skipbelow=1em,
-        leftmargin=1em,
-        rightmargin=0em,
-        innerleftmargin=1em,
-        innerrightmargin=1em
-    ]
-    \small\itshape\color{blockquotecolor}
-}{%
-    \end{mdframed}
+    keywordstyle=\color{accent},
+    commentstyle=\color{subtle},
+    stringstyle=\color{accent}
 }
 
 % Hyperref setup
 \hypersetup{
     colorlinks=true,
-    linkcolor=linkcolor,
-    urlcolor=linkcolor,
-    citecolor=linkcolor,
-    linktoc=all,
-    unicode=true
+    linkcolor=accent,
+    urlcolor=accent,
+    citecolor=accent
 }
 
 % Define tightlist command
@@ -122,16 +75,19 @@
     \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
 \begin{document}
+
+% Title page
 $if(title)$
+\thispagestyle{empty}
 \begin{center}
-\vspace*{2cm}
-{\Huge\bfseries $title$\par}
+\vspace*{3cm}
+{\Huge\bfseries\color{heading}$title$\par}
 \vspace{2cm}
-{\Large\itshape $author$\par}
-\vspace{0.5em}
-{\large \today\par}
+{\Large\itshape\color{subtle}$author$\par}
+\vfill
+{\large\color{subtle}\today\par}
 \end{center}
-\vspace{2cm}
+\clearpage
 $endif$
 
 $body$

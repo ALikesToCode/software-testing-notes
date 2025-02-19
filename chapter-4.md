@@ -3,7 +3,7 @@
 *“In software engineering, integration testing is not merely the assembly of pre‐tested modules. It is the rigorous examination of the interfaces, data exchanges, and control flows that bind the modules together. Graph‐based models provide us with a powerful abstraction to reason about and verify these interconnections.”*  
 — Professor Meenakshi D’Souza
 
----
+
 
 ## 1. Introduction
 
@@ -19,7 +19,7 @@ In this chapter, we explore how graph‐based testing techniques, which we devel
 - The use of test stubs and test drivers.
 - Examples illustrating these concepts.
 
----
+
 
 ## 2. Software Design, Modules, and Interfaces
 
@@ -40,7 +40,7 @@ Interface errors are significant—empirical studies estimate that up to 25% of 
 - Inadequate error handling.
 - Initialization and synchronization issues.
 
----
+
 
 ## 3. Integration Testing Fundamentals
 
@@ -62,7 +62,7 @@ There are several strategies for integration testing:
 
 Test stubs and drivers are essential scaffolding components that allow testing even when some modules are incomplete.
 
----
+
 
 ## 4. Graph Models for Integration Testing
 
@@ -92,7 +92,7 @@ When modules interact, data is passed between them. Testing these interactions r
   - **All-Coupling-Uses Coverage:** Each last definition must reach every possible first use.
   - **All-Coupling-DU-Paths Coverage:** Every simple, def-clear path from the last definition to every first use must be executed.
 
----
+
 
 ## 5. Applying Graph Coverage Criteria to Integration Testing
 
@@ -143,7 +143,7 @@ Integration testing also requires verifying sequencing constraints:
 
 For sequencing constraints that involve counting (e.g., ensuring at least as many *enQueue()* calls as *deQueue()* calls in a Queue), a finite state machine (FSM) model can be more appropriate. In FSM models, states represent the number of elements in the queue, and transitions correspond to calls to *enQueue()* and *deQueue()*.
 
----
+
 
 ## 6. Finite State Machines (FSMs) for Design Specifications
 
@@ -163,7 +163,7 @@ When using FSMs for integration testing:
 *Example – Elevator Door FSM:*  
 A simple FSM may model an elevator door with states such as *Closed* and *Open*. Transitions are triggered by events (e.g., pressing the open button) provided that conditions (e.g., elevator speed is 0) are met. Testing the FSM involves designing sequences of events that exercise every state and transition.
 
----
+
 
 ## 7. Integration Testing Process and Practical Considerations
 
@@ -195,7 +195,7 @@ A simple FSM may model an elevator door with states such as *Closed* and *Open*.
 - **Certification Standards:**  
   In critical domains (e.g., aerospace, as mandated by DO-178C), integration testing must rigorously verify data coupling and control coupling. Graph-based techniques provide a formal basis for such certification.
 
----
+
 
 ## 8. Classical Coverage Criteria Revisited
 
@@ -211,7 +211,7 @@ While our discussion has focused on graph-based integration testing, it is instr
 
 Understanding these relationships reinforces that integration testing is an extension of unit testing—expanding the scope from isolated code to the interactions between modules.
 
----
+
 
 ## 9. Case Studies
 
@@ -249,7 +249,7 @@ Understanding these relationships reinforces that integration testing is an exte
 - **Testing:**  
   The FSM is used to generate test cases that ensure the queue never transitions into an invalid state (e.g., de-queuing from an empty queue).
 
----
+
 
 ## 10. Conclusion and Reflections
 

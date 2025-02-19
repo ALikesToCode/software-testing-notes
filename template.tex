@@ -1,208 +1,99 @@
 \documentclass[11pt,a4paper]{article}
 
-% Basic packages
+% Essential packages
 \usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
-\usepackage{fancyhdr}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{listings}
 \usepackage{xcolor}
-\usepackage{titlesec}
+\usepackage{listings}
 \usepackage{enumitem}
-\usepackage{bookmark}
-\usepackage{fancyvrb}
-\usepackage{newunicodechar}
-\usepackage{csquotes}
-\usepackage{microtype}
-\usepackage{float}
-\usepackage[english]{babel}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{setspace}
-\usepackage{tcolorbox}
-\usepackage{mdframed}
-\usepackage{soul}
-\usepackage{fontspec}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{float}
 \usepackage{caption}
-\usepackage{subcaption}
-
-% Font configuration
-\defaultfontfeatures{Ligatures=TeX}
-\setmainfont{Noto Sans}[
-    UprightFont={* Regular},
-    BoldFont={* Bold},
-    ItalicFont={* Italic},
-    BoldItalicFont={* Bold Italic}
-]
-\setmonofont{DejaVu Sans Mono}[Scale=0.9]
-\setsansfont{Noto Sans}
+\usepackage{fontspec}
 
 % Colors
+\definecolor{heading}{RGB}{33,33,33}
+\definecolor{accent}{RGB}{25,71,217}
+\definecolor{subtle}{RGB}{71,71,71}
 \definecolor{codebackground}{RGB}{248,248,248}
-\definecolor{codeborder}{RGB}{230,230,230}
-\definecolor{linkcolor}{RGB}{41,98,255}
-\definecolor{citecolor}{RGB}{0,128,0}
-\definecolor{urlcolor}{RGB}{0,102,204}
-\definecolor{toccolor}{RGB}{41,98,255}
-\definecolor{sectioncolor}{RGB}{33,33,33}
-\definecolor{subsectioncolor}{RGB}{44,44,44}
-\definecolor{blockquotecolor}{RGB}{73,73,73}
-\definecolor{blockquoteborder}{RGB}{221,221,221}
-\definecolor{captioncolor}{RGB}{73,73,73}
 
 % Page style
 \pagestyle{fancy}
 \fancyhf{}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0.2pt}
+\renewcommand{\headrulewidth}{0.2pt}
 \fancyhead[L]{\small\nouppercase{\leftmark}}
 \fancyhead[R]{\small\thepage}
 \fancyfoot[C]{\small\textit{Software Testing Notes}}
 
 % Section styling
 \titleformat{\section}
-    {\Large\bfseries\color{sectioncolor}}
+    {\Large\bfseries\color{heading}}
     {\thesection}
     {1em}
     {}
-    [\vspace{0.5em}\titlerule]
+    [\vspace{0.2em}\hrule height 0.5pt\vspace{1em}]
 
 \titleformat{\subsection}
-    {\large\bfseries\color{subsectioncolor}}
+    {\large\bfseries\color{heading}}
     {\thesubsection}
     {1em}
     {}
-    [\vspace{0.3em}]
 
-\titleformat{\subsubsection}
-    {\bfseries\color{subsectioncolor}}
-    {\thesubsubsection}
-    {1em}
-    {}
-
-% Spacing
+% Basic styling
 \setlength{\parskip}{1em}
 \setlength{\parindent}{0pt}
-\onehalfspacing
 
 % List styling
 \setlist{itemsep=0.5em, topsep=0.5em}
-\setlist[itemize]{label=\textbullet}
+\setlist[itemize]{label={\small\textbullet}}
 \setlist[enumerate]{label=\arabic*.}
 
 % Code blocks
 \lstset{
-    backgroundcolor=\color{codebackground},
-    frame=single,
-    framerule=0.5pt,
-    rulecolor=\color{codeborder},
-    basicstyle=\ttfamily\small,
     breaklines=true,
-    breakatwhitespace=true,
-    showstringspaces=false,
+    basicstyle=\small\ttfamily,
     numbers=left,
-    numberstyle=\tiny\color{gray},
-    keywordstyle=\color{blue},
-    commentstyle=\color{green!60!black},
-    stringstyle=\color{red},
+    numberstyle=\tiny\color{subtle},
+    frame=single,
+    rulecolor=\color{subtle},
+    backgroundcolor=\color{codebackground},
     numbersep=8pt,
-    xleftmargin=2em,
-    framexleftmargin=1.5em,
-    framextopmargin=0.5em,
-    framexbottommargin=0.5em,
-    captionpos=b,
-    postbreak={\mbox{\textcolor{gray}{\textbf{↪}}\space}}
-}
-
-% Block quote styling
-\renewenvironment{quote}{%
-    \begin{mdframed}[
-        linewidth=2pt,
-        linecolor=blockquoteborder,
-        leftline=true,
-        rightline=false,
-        topline=false,
-        bottomline=false,
-        skipabove=1em,
-        skipbelow=1em,
-        leftmargin=1em,
-        rightmargin=0em,
-        innerleftmargin=1em,
-        innerrightmargin=1em
-    ]
-    \small\itshape\color{blockquotecolor}
-}{%
-    \end{mdframed}
-}
-
-% Caption styling
-\captionsetup{
-    font={small,sf},
-    labelfont={bf},
-    textfont={it},
-    labelsep=period,
-    justification=justified,
-    singlelinecheck=false,
-    skip=0.5em,
-    textcolor=captioncolor
+    keywordstyle=\color{accent},
+    commentstyle=\color{subtle},
+    stringstyle=\color{accent}
 }
 
 % Hyperref setup
 \hypersetup{
     colorlinks=true,
-    linkcolor=linkcolor,
-    filecolor=linkcolor,
-    urlcolor=urlcolor,
-    citecolor=citecolor,
-    linktoc=all,
-    unicode=true,
-    pdfencoding=auto,
-    bookmarksnumbered=true,
-    bookmarksopen=true,
-    bookmarksopenlevel=2,
-    pdfborder={0 0 0}
+    linkcolor=accent,
+    urlcolor=accent,
+    citecolor=accent
 }
-
-% Table of contents styling
-\renewcommand{\contentsname}{\Large\bfseries\color{sectioncolor}Contents}
-\setcounter{tocdepth}{3}
-
-% Figure handling
-\let\origfigure\figure
-\let\endorigfigure\endfigure
-\renewenvironment{figure}[1][2] {
-    \expandafter\origfigure\expandafter[H]
-} {
-    \endorigfigure
-}
-
-% Math styling
-\allowdisplaybreaks
-\setlength{\abovedisplayskip}{1em}
-\setlength{\belowdisplayskip}{1em}
-
-% Fix for underscore and other special characters
-\catcode`\_=12
-\DeclareRobustCommand{\underscore}{\textunderscore}
 
 % Define tightlist command
 \providecommand{\tightlist}{%
     \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
-% Begin document
 \begin{document}
+
+% Title page
 $if(title)$
-\begin{titlepage}
-    \centering
-    \vspace*{2cm}
-    {\Huge\bfseries $title$\par}
-    \vspace{2cm}
-    {\Large\itshape $author$\par}
-    \vfill
-    {\large \today\par}
-\end{titlepage}
+\thispagestyle{empty}
+\begin{center}
+\vspace*{3cm}
+{\Huge\bfseries\color{heading}$title$\par}
+\vspace{2cm}
+{\Large\itshape\color{subtle}$author$\par}
+\vfill
+{\large\color{subtle}\today\par}
+\end{center}
+\clearpage
 $endif$
+
 $body$
 \end{document} 
