@@ -64,7 +64,7 @@ jobs:
       - name: 📄 Generate LaTeX Template
         run: |
           mkdir -p .latex
-          cat > $TEMPLATE_FILE << 'EOL'
+          cat > "$TEMPLATE_FILE" << 'EOL'
           \documentclass[11pt,a4paper]{article}
           
           % Basic packages
@@ -133,13 +133,11 @@ jobs:
             {1em}
             {}
             [\titlerule]
-          
           \titleformat{\subsection}
             {\large\bfseries}
             {\thesubsection}
             {1em}
             {}
-          
           \titleformat{\subsubsection}
             {\bfseries}
             {\thesubsubsection}
@@ -170,6 +168,14 @@ jobs:
           % Fix for underscore and other special characters
           \catcode`\_=12
           \DeclareRobustCommand{\underscore}{\textunderscore}
+          
+          % Begin document
+          \begin{document}
+          $if(title)$
+          \maketitle
+          $endif$
+          $body$
+          \end{document}
           EOL
 
       - name: 🚀 Convert Markdown to PDF
@@ -184,7 +190,7 @@ jobs:
             echo "Checking template and file..."
             
             # Validate template
-            xelatex -no-pdf -interaction=nonstopmode $TEMPLATE_FILE || echo "Template validation failed"
+            xelatex -no-pdf -interaction=nonstopmode "$TEMPLATE_FILE" || echo "Template validation failed"
             
             # Check markdown content
             echo "Markdown file contents:"
@@ -194,12 +200,12 @@ jobs:
           }
           
           # Create output directory
-          mkdir -p $PDF_DIR
+          mkdir -p "$PDF_DIR"
           
           # Track conversion status
           success_count=0
           failure_count=0
-          failed_files=()
+          declare -a failed_files
           
           while IFS= read -r file; do
             rel_path="${file#./}"
@@ -226,7 +232,7 @@ jobs:
             if pandoc "$file" \
               --from markdown+smart+yaml_metadata_block+auto_identifiers+task_lists+emoji+definition_lists \
               --to pdf \
-              --template $TEMPLATE_FILE \
+              --template "$TEMPLATE_FILE" \
               --pdf-engine=xelatex \
               --toc --toc-depth 3 \
               --number-sections \
@@ -278,7 +284,7 @@ jobs:
           fi
           
           # Exit with error if any conversion failed
-          [ $failure_count -eq 0 ]
+          exit "$failure_count"
 
       - name: 📤 Upload Generated PDFs
         if: always()
@@ -300,7 +306,7 @@ jobs:
             echo "- Actor: ${GITHUB_ACTOR:-Unknown}"
             echo
             echo "## Successfully Converted Files"
-            find $PDF_DIR -name "*.pdf" -exec basename {} .pdf \; | sort
+            find "$PDF_DIR" -name "*.pdf" -exec basename {} .pdf \; | sort
             echo
             echo "## Failed Conversions"
             if [ -f failed_files.txt ]; then
